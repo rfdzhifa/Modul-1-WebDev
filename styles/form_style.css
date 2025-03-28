@@ -1,11 +1,11 @@
 /* Reset dan Style Dasar */
-/* * {
+* {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+    /* margin: 0;
+    padding: 0; */
 }
 
-body {
+/* body {
     font-family: Arial, sans-serif;
     background-color:rgb(247, 247, 247);
     padding: 20px;
@@ -31,6 +31,7 @@ h3 {
 .form-group {
     margin-bottom: 15px;
     position: relative;
+    width: 100%;
 }
 
 label {
@@ -40,7 +41,7 @@ label {
 }
 
 input,
-select,
+select, 
 textarea {
     width: 100%;
     padding: 10px;
@@ -52,7 +53,7 @@ textarea {
 
 input:focus,
 select:focus,
-textarea:focus {
+textarea:focus{
     outline: none;
     border-color:rgb(0, 0, 0);
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
