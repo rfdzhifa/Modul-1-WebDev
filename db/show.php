@@ -1,7 +1,6 @@
 <?php
 include 'conn.php';
 
-// Query untuk mengambil data booking
 $query = "SELECT b.id, b.nama, b.email, b.nomor_telp, p.nama_paket, b.date, t.waktu 
           FROM booking b 
           JOIN paket p ON b.paket_id = p.id 
@@ -9,11 +8,12 @@ $query = "SELECT b.id, b.nama, b.email, b.nomor_telp, p.nama_paket, b.date, t.wa
 
 $result = $conn->query($query);
 
-// Cek apakah query berhasil
 if (!$result) {
     die("Query Error: " . $conn->error); // Tampilkan error MySQL
 }
 ?>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <table border="1">
     <tr>
@@ -24,7 +24,7 @@ if (!$result) {
         <th>Paket</th>
         <th>Tanggal</th>
         <th>Waktu</th>
-        <th>Aksi</th> <!-- Tambahkan kolom aksi -->
+        <th>Aksi</th> 
     </tr>
     <?php while ($row = $result->fetch_assoc()) { ?>
         <tr>
@@ -36,8 +36,13 @@ if (!$result) {
             <td><?= $row['date']; ?></td>
             <td><?= $row['waktu']; ?></td>
             <td>
-                <a href="db/edit.php?id=<?= $row['id']; ?>" class="btn-edit">Edit</a> | 
-                <a href="db/delete.php?id=<?= $row['id']; ?>" class="btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus booking ini?');">Delete</a>
+                <a href="#" class="btn-edit" data-id="<?= $row['id']; ?>" title="Edit">
+                    <i class="fa-regular fa-pen-to-square" style="color: black; font-size: 1.2em;"></i>
+                </a>
+                &nbsp;|&nbsp;
+                <a href="db/delete.php?id=<?= $row['id']; ?>" class="btn-delete" title="Hapus">
+                    <i class="fa-regular fa-trash-can" style="color: black; font-size: 1.2em;"></i>
+                </a>
             </td>
         </tr>
     <?php } ?>
