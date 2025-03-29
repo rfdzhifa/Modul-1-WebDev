@@ -129,6 +129,33 @@ tr:hover {
     background-color: #f1f1f1;
 }
 
+/* Style untuk tombol Edit & Delete */
+.btn-edit, .btn-delete {
+    display: inline-block;
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+}
+
+.btn-edit {
+    background-color: #f39c12;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.btn-edit:hover {
+    background-color: #d68910;
+}
+
+
 /* Responsif untuk layar kecil */
 @media (max-width: 768px) {
     .container {

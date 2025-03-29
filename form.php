@@ -76,6 +76,10 @@ unset($_SESSION['status'], $_SESSION['message']);
                 <button type="submit">Booking</button>
             </div>
         </form>
+
+        <h2>Daftar Booking</h2>
+        <?php include 'db/show.php'; ?>
+
     </div>
 
     <script>
