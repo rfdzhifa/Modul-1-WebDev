@@ -2,15 +2,12 @@
 session_start();
 include 'db/conn.php';
 
-// Ambil daftar paket dari database
 $paketQuery = "SELECT id, nama_paket FROM paket";
 $paketResult = $conn->query($paketQuery);
 
-// Ambil pesan dari session
 $status = $_SESSION['status'] ?? '';
 $message = $_SESSION['message'] ?? '';
 
-// Hapus session setelah ditampilkan
 unset($_SESSION['status'], $_SESSION['message']);
 ?>
 
@@ -82,6 +79,60 @@ unset($_SESSION['status'], $_SESSION['message']);
 
     </div>
 
+    <div id="editModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Booking</h2>
+            <form id="editForm">
+                <input type="hidden" id="edit-id" name="id">
+                
+                <div class="form-group">
+                    <label for="edit-nama">Nama:</label>
+                    <input type="text" id="edit-nama" name="nama" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-email">Email:</label>
+                    <input type="email" id="edit-email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-nomor">Nomor Telepon:</label>
+                    <input type="text" id="edit-nomor" name="nomor" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-paket">Paket:</label>
+                    <select id="edit-paket" name="paket_id" required>
+                        <option value="">-- Pilih Paket --</option>
+                        <?php 
+                        $paketQuery = "SELECT id, nama_paket FROM paket";
+                        $paketResult = $conn->query($paketQuery);
+                        while ($row = $paketResult->fetch_assoc()) { ?>
+                            <option value="<?= $row['id']; ?>"><?= $row['nama_paket']; ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-date">Tanggal:</label>
+                    <input type="date" id="edit-date" name="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-time">Waktu:</label>
+                    <select id="edit-time" name="time_id" required>
+                        <option value="">-- Pilih Waktu --</option>
+                    </select>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function() {
             $('#paket, #date').change(function() {
@@ -116,7 +167,6 @@ unset($_SESSION['status'], $_SESSION['message']);
                 }
             });
 
-            // Menampilkan SweetAlert jika ada pesan dari session
             <?php if ($message): ?>
                 Swal.fire({
                     icon: '<?= $status === "success" ? "success" : "error" ?>',
@@ -126,6 +176,96 @@ unset($_SESSION['status'], $_SESSION['message']);
                 });
             <?php endif; ?>
         });
+
+        $(document).ready(function() {
+        $(document).on('click', '.btn-edit', function() {
+            const id = $(this).data('id');
+            
+            $.get('db/update.php?id=' + id, function(response) {
+                if (response.error) {
+                    Swal.fire('Error', response.error, 'error');
+                    return;
+                }
+                
+                $('#edit-id').val(response.id);
+                $('#edit-nama').val(response.nama);
+                $('#edit-email').val(response.email);
+                $('#edit-nomor').val(response.nomor_telp);
+                $('#edit-paket').val(response.paket_id);
+                $('#edit-date').val(response.date);
+                
+                updateAvailableTimes(response.paket_id, response.date, response.time_id);
+                
+                $('#editModal').show();
+            }).fail(function() {
+                Swal.fire('Error', 'Gagal memuat data', 'error');
+            });
+        });
+        
+        $('.close-modal').click(function() {
+            $('#editModal').hide();
+        });
+        
+        $('#edit-paket, #edit-date').change(function() {
+            const paketId = $('#edit-paket').val();
+            const date = $('#edit-date').val();
+            
+            if (paketId && date) {
+                updateAvailableTimes(paketId, date);
+            } else {
+                $('#edit-time').html('<option value="">Pilih Paket dan Tanggal terlebih dahulu</option>');
+            }
+        });
+        
+        $('#editForm').submit(function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                id: $('#edit-id').val(),
+                nama: $('#edit-nama').val(),
+                email: $('#edit-email').val(),
+                nomor: $('#edit-nomor').val(),
+                paket_id: $('#edit-paket').val(),
+                date: $('#edit-date').val(),
+                time_id: $('#edit-time').val()
+            };
+            
+            $.ajax({
+                url: 'db/update.php',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Sukses', 'Data berhasil diupdate', 'success')
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', response.error || 'Gagal mengupdate data', 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Terjadi kesalahan', 'error');
+                }
+            });
+        });
+    });
+
+        function updateAvailableTimes(paketId, date, selectedTimeId = null) {
+            $.get(`db/get_time.php?paket_id=${paketId}&date=${date}`, function(times) {
+                const $timeSelect = $('#edit-time');
+                $timeSelect.empty();
+                
+                if (times.length > 0) {
+                    $timeSelect.append('<option value="">Pilih Waktu</option>');
+                    times.forEach(time => {
+                        const selected = time.id == selectedTimeId ? 'selected' : '';
+                        $timeSelect.append(`<option value="${time.id}" ${selected}>${time.waktu}</option>`);
+                    });
+                } else {
+                    $timeSelect.append('<option value="">Tidak ada waktu tersedia</option>');
+                }
+            });
+        }
     </script>
 </body>
 </html>

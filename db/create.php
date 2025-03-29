@@ -12,7 +12,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $errors = [];
 
-    // Validasi input
     if (empty($nama)) $errors['nama'] = "Nama wajib diisi!";
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors['email'] = "Email tidak valid!";
     if (empty($nomor) || !ctype_digit($nomor)) $errors['nomor'] = "Nomor harus angka!";
@@ -27,7 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Ambil harga paket
     $stmtHarga = $conn->prepare("SELECT harga FROM paket WHERE id = ?");
     $stmtHarga->bind_param("s", $paket);
     $stmtHarga->execute();
@@ -41,7 +39,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Cek apakah waktu sudah dibooking
     $stmtCheck = $conn->prepare("SELECT * FROM booking WHERE paket_id = ? AND date = ? AND time_id = ?");
     $stmtCheck->bind_param("sss", $paket, $date, $time);
     $stmtCheck->execute();
@@ -52,7 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Simpan booking
     $stmtInsert = $conn->prepare("INSERT INTO booking (nama, email, nomor_telp, paket_id, date, time_id, harga) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmtInsert->bind_param("ssssssi", $nama, $email, $nomor, $paket, $date, $time, $harga);
 
